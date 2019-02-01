@@ -15,8 +15,8 @@ function Viking(name, health, strength) {
   this.name = name;
   Soldier.call(this, health, strength);
   this.receiveDamage = function(damage) {
-    this.health = health - damage;
-    if(this.health > 0) return name + " has received " + damage +" points of damage";
+    this.health -= damage;
+    if(this.health > 0) return name + " has received " + damage + " points of damage";
         if(this.health === 0) return name + " has died in act of combat";
     };
     this.battleCry = function() {
@@ -30,7 +30,7 @@ Viking.prototype = Object.create(Soldier.prototype);
 function Saxon(health, strength) {
   Soldier.call(this, health, strength);
   this.receiveDamage = function(damage) {
-    this.health = health - damage;
+    this.health -= damage;
     if (this.health > 0) return 'A Saxon has received ' + damage + ' points of damage';
     if (this.health == 0) return 'A Saxon has died in combat';
   }
@@ -49,11 +49,30 @@ function War() {
     this.saxonArmy.push(saxon);
   };
   this.vikingAttack = function() {
-    this.saxonArmy.pop();
-    // return Saxon.receiveDamage(Viking.strength);
+    let vikingIndex = Math.floor(Math.random() * this.vikingArmy.length)
+    let viking = this.vikingArmy[vikingIndex];
+
+    let saxonIndex = Math.floor(Math.random() * this.saxonArmy.length)
+    let saxon = this.saxonArmy[saxonIndex];
+
+    let finalDamageViking = saxon.receiveDamage(viking.strength);
+    this.saxonArmy.forEach( (saxon, index) => {
+      if (saxon.health <=0) this.saxonArmy.splice(index, 1);
+    });
+    return finalDamageViking;
   };
   this.saxonAttack = function() {
-    this.vikingArmy.pop();
+    let vikingIndex = Math.floor(Math.random() * this.vikingArmy.length)
+    let viking = this.vikingArmy[vikingIndex];
+
+    let saxonIndex = Math.floor(Math.random() * this.saxonArmy.length)
+    let saxon = this.saxonArmy[saxonIndex];
+
+    let finalDamageSaxon = viking.receiveDamage(saxon.strength);
+    this.vikingArmy.forEach( (viking, index) => {
+      if (viking.health <=0) this.vikingArmy.splice(index, 1);
+    });
+    return finalDamageSaxon;
   };
   this.showStatus = function() {
     if (this.saxonArmy.length == 0) return 'Vikings have won the war of the century!';
